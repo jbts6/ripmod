@@ -9,6 +9,7 @@ internal static class Program
             GameplayConfigTests.RunAll();
             AbsorbTests.RunAll();
             TributeTests.RunAll();
+            OracleFusionPatchTests.RunAll();
 
             Console.WriteLine("ALL TESTS PASSED");
             return 0;

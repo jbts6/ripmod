@@ -12,6 +12,10 @@
     <Compile Include="..\AbsorbOperationGate.cs" Link="AbsorbOperationGate.cs" />
     <Compile Include="..\GameplayTweaksConfig.cs" Link="GameplayTweaksConfig.cs" />
     <Compile Include="..\GameplayTweaksConfigValueParser.cs" Link="GameplayTweaksConfigValueParser.cs" />
+    <Compile Include="..\BinaryPatchSpec.cs" Link="BinaryPatchSpec.cs" />
+    <Compile Include="..\BytePattern.cs" Link="BytePattern.cs" />
+    <Compile Include="..\OracleFusionPatchCatalog.cs" Link="OracleFusionPatchCatalog.cs" />
+    <Compile Include="..\PeImageFile.cs" Link="PeImageFile.cs" />
     <Compile Include="..\TributeMultiplierMath.cs" Link="TributeMultiplierMath.cs" />
     <Compile Include="..\TributeValueFormatter.cs" Link="TributeValueFormatter.cs" />
   </ItemGroup>
