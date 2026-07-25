@@ -6,76 +6,69 @@ using UnityEngine;
 
 public static class GlobalDropAbsorber
 {
-    private static readonly AbsorbOperationGate Gate = new AbsorbOperationGate();
-    private static readonly Il2CppSystem.Action<Il2CppSystem.Collections.Generic.List<IDrop>> _onAbsorbed =
-        DelegateSupport.ConvertDelegate<Il2CppSystem.Action<Il2CppSystem.Collections.Generic.List<IDrop>>>(
-            (Action<Il2CppSystem.Collections.Generic.List<IDrop>>)OnAbsorbed);
-    private static DropSys _activeDropSys;
+    private static readonly AbsorbOperationCoordinator<DropSys> Operations =
+        new AbsorbOperationCoordinator<DropSys>();
 
     public static bool TryAbsorbAll()
     {
-        if (!Gate.TryBegin())
-            return false;
+        AbsorbOperation<DropSys> operation = null;
 
         try
         {
             NZStage nzStage = UnityEngine.Object.FindObjectOfType<NZStage>();
             if (nzStage == null)
-                return CompleteWithoutAbsorb();
+                return false;
 
             StageSys stage = nzStage.CurStage;
             if (stage == null)
-                return CompleteWithoutAbsorb();
+                return false;
 
             stage.TryGetFeature<DropSys>(out DropSys dropSys);
             if (dropSys == null)
-                return CompleteWithoutAbsorb();
+                return false;
 
             stage.TryGetFeature<BattleStageInfoSys>(out BattleStageInfoSys stageInfo);
             if (stageInfo == null)
-                return CompleteWithoutAbsorb();
+                return false;
 
             RigidObj host = stageInfo.HostView;
             if (host == null)
-                return CompleteWithoutAbsorb();
+                return false;
 
             Transform target = host.GetTransformNode();
             if (target == null)
-                return CompleteWithoutAbsorb();
+                return false;
 
-            _activeDropSys = dropSys;
-            dropSys.GlobalAbsorbDrops(target, _onAbsorbed);
+            if (!Operations.TryBegin(dropSys, out operation))
+                return false;
+
+            var callback = DelegateSupport.ConvertDelegate<
+                Il2CppSystem.Action<Il2CppSystem.Collections.Generic.List<IDrop>>>(
+                (Action<Il2CppSystem.Collections.Generic.List<IDrop>>)(dropList =>
+                    OnAbsorbed(operation, dropList)));
+            operation.SetCallback(callback);
+            dropSys.GlobalAbsorbDrops(target, callback);
             return true;
         }
         catch (Exception exception)
         {
             LogError("[Absorb] global absorb failed: " + exception);
-            _activeDropSys = null;
-            Gate.Complete();
+            Operations.Cancel(operation);
             return false;
         }
     }
 
-    private static bool CompleteWithoutAbsorb()
-    {
-        Gate.Complete();
-        return false;
-    }
-
-    private static void OnAbsorbed(Il2CppSystem.Collections.Generic.List<IDrop> dropList)
+    private static void OnAbsorbed(
+        AbsorbOperation<DropSys> operation,
+        Il2CppSystem.Collections.Generic.List<IDrop> dropList)
     {
         try
         {
-            _activeDropSys?.CalPick(dropList);
+            Operations.TryComplete(operation, dropSys => dropSys.CalPick(dropList));
         }
         catch (Exception exception)
         {
             LogError("[Absorb] settlement failed: " + exception);
-        }
-        finally
-        {
-            _activeDropSys = null;
-            Gate.Complete();
         }
     }
 

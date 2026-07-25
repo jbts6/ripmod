@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 internal static class Program
 {
@@ -18,6 +20,9 @@ internal static class Program
             InvalidMultiplierWarnsWithKey();
             ConfigParsesKnownKeysAndIgnoresUnknowns();
             AbsorbGateRejectsOverlappingOperations();
+            AbsorbGateAllowsOneConcurrentBegin();
+            AbsorbCoordinatorIgnoresDuplicateAndLateCallbacks();
+            AbsorbCoordinatorCancelReleasesOnlyMatchingOperation();
             AssertNear(15f, TributeMultiplierMath.Apply(10f, 1.5), "runtime scale");
             RuntimeScaleRejectsOverflow();
             AssertEqual("攻击+15%", TributeValueFormatter.Apply("攻击+10%", 1.5), "integer text");
@@ -85,6 +90,53 @@ internal static class Program
         AssertFalse(gate.IsPending, "completion is idempotent");
     }
 
+    private static void AbsorbGateAllowsOneConcurrentBegin()
+    {
+        var gate = new AbsorbOperationGate();
+        int started = 0;
+        Parallel.For(0, 128, _ =>
+        {
+            if (gate.TryBegin())
+                Interlocked.Increment(ref started);
+        });
+
+        AssertEqual(1, started, "only one concurrent absorb begins");
+        gate.Complete();
+        AssertFalse(gate.IsPending, "concurrent gate completion releases operation");
+    }
+
+    private static void AbsorbCoordinatorIgnoresDuplicateAndLateCallbacks()
+    {
+        var coordinator = new AbsorbOperationCoordinator<string>();
+        var settlements = new List<string>();
+
+        AssertTrue(coordinator.TryBegin("first", out AbsorbOperation<string> first), "first operation begins");
+        AssertTrue(coordinator.TryComplete(first, value => settlements.Add(value)), "first callback settles");
+        AssertFalse(coordinator.TryComplete(first, value => settlements.Add(value)), "duplicate callback ignored");
+
+        AssertTrue(coordinator.TryBegin("second", out AbsorbOperation<string> second), "second operation begins");
+        AssertFalse(coordinator.TryComplete(first, value => settlements.Add(value)), "late old callback ignored");
+        AssertTrue(coordinator.IsPending, "late old callback keeps second operation pending");
+        AssertTrue(coordinator.TryComplete(second, value => settlements.Add(value)), "second callback settles");
+
+        AssertEqual("first,second", string.Join(",", settlements), "callbacks settle their own operations once");
+        AssertFalse(coordinator.IsPending, "second completion releases gate");
+    }
+
+    private static void AbsorbCoordinatorCancelReleasesOnlyMatchingOperation()
+    {
+        var coordinator = new AbsorbOperationCoordinator<string>();
+        AssertTrue(coordinator.TryBegin("failed", out AbsorbOperation<string> failed), "failed operation begins");
+        coordinator.Cancel(failed);
+        AssertFalse(coordinator.IsPending, "sync exception cleanup releases failed operation");
+
+        AssertTrue(coordinator.TryBegin("active", out AbsorbOperation<string> active), "new operation begins after cleanup");
+        coordinator.Cancel(failed);
+        AssertTrue(coordinator.IsPending, "old cleanup cannot release new operation");
+        coordinator.Cancel(active);
+        AssertFalse(coordinator.IsPending, "matching cleanup releases active operation");
+    }
+
     private static void RuntimeScaleRejectsOverflow()
     {
         try
@@ -112,6 +164,14 @@ internal static class Program
         if (!string.Equals(expected, actual, StringComparison.Ordinal))
         {
             throw new InvalidOperationException(description + ": expected '" + expected + "', got '" + actual + "'");
+        }
+    }
+
+    private static void AssertEqual(int expected, int actual, string description)
+    {
+        if (expected != actual)
+        {
+            throw new InvalidOperationException(description + ": expected " + expected + ", got " + actual);
         }
     }
 
