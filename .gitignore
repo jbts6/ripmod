@@ -2,6 +2,7 @@
 **/obj/
 **/TestResults/
 .worktrees/
+.superpowers/
 
 .vs/
 .idea/
