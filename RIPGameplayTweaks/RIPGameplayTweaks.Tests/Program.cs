@@ -28,7 +28,12 @@ internal static class Program
             AssertNear(15f, TributeMultiplierMath.Apply(10f, 1.5), "runtime scale");
             RuntimeScaleRejectsOverflow();
             AssertEqual("攻击+15%", TributeValueFormatter.Apply("攻击+10%", 1.5), "integer text");
+            AssertEqual("攻击+4%", TributeValueFormatter.Apply("攻击+3%", 1.5), "integer text uses Math.Round");
             AssertEqual("速度-3.75", TributeValueFormatter.Apply("速度-2.5", 1.5), "decimal text");
+            AssertEqual(
+                "攻击+15%，速度-3.75",
+                TributeValueFormatter.Apply("攻击+10%，速度-2.5", 1.5),
+                "all numbers in detail text");
             AssertEqual("", TributeValueFormatter.Apply("", 1.5), "empty text");
             AssertEqual("无数值", TributeValueFormatter.Apply("无数值", 1.5), "text without numbers");
 
