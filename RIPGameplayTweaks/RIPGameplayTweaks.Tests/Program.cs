@@ -19,6 +19,8 @@ internal static class Program
             AssertNear(1.0, Parse("101", 1.0), "over-limit keeps previous");
             InvalidMultiplierWarnsWithKey();
             ConfigParsesKnownKeysAndIgnoresUnknowns();
+            ConfigParsesMixedCaseKeys();
+            ConfigKeepsPreviousMultiplierAfterInvalidReload();
             AbsorbGateRejectsOverlappingOperations();
             AbsorbGateAllowsOneConcurrentBegin();
             AbsorbCoordinatorIgnoresDuplicateAndLateCallbacks();
@@ -76,6 +78,42 @@ internal static class Program
         }
 
         AssertNear(2.25, config.TributeAttributeMultiplier, "config multiplier");
+    }
+
+    private static void ConfigParsesMixedCaseKeys()
+    {
+        var config = GameplayTweaksConfig.ParseLines(
+            new[]
+            {
+                "AbSoRbEnAbLeD=0",
+                "TrIbUtEaTtRiBuTeMuLtIpLiEr=2.25"
+            },
+            new GameplayTweaksConfig(),
+            _ => { });
+
+        AssertFalse(config.AbsorbEnabled, "mixed-case absorbEnabled parses");
+        AssertNear(2.25, config.TributeAttributeMultiplier, "mixed-case tribute multiplier parses");
+    }
+
+    private static void ConfigKeepsPreviousMultiplierAfterInvalidReload()
+    {
+        var warnings = new List<string>();
+        GameplayTweaksConfig config = new GameplayTweaksConfig();
+        config = GameplayTweaksConfig.ParseLines(
+            new[] { "tributeAttributeMultiplier=2.25" },
+            config,
+            warnings.Add);
+        config = GameplayTweaksConfig.ParseLines(
+            new[] { "tributeAttributeMultiplier=invalid" },
+            config,
+            warnings.Add);
+
+        AssertNear(2.25, config.TributeAttributeMultiplier, "invalid reload keeps previous multiplier");
+        AssertEqual(1, warnings.Count, "invalid reload writes one warning");
+        if (!warnings[0].Contains("tributeAttributeMultiplier", StringComparison.Ordinal))
+        {
+            throw new InvalidOperationException("invalid reload warning includes multiplier key");
+        }
     }
 
     private static void AbsorbGateRejectsOverlappingOperations()
