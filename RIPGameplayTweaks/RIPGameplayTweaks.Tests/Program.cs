@@ -10,6 +10,7 @@ internal static class Program
             AbsorbTests.RunAll();
             TributeTests.RunAll();
             OracleFusionPatchTests.RunAll();
+            NativePatchTransactionTests.RunAll();
 
             Console.WriteLine("ALL TESTS PASSED");
             return 0;
