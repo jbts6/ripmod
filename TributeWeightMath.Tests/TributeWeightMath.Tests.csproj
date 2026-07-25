@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\TributeWeightMath.cs" Link="TributeWeightMath.cs" />
+    <Compile Include="..\LegendQualityMath.cs" Link="LegendQualityMath.cs" />
+    <Compile Include="..\QualityBoostConfigValueParser.cs" Link="QualityBoostConfigValueParser.cs" />
+    <Compile Include="..\YinluQualityOverrideMap.cs" Link="YinluQualityOverrideMap.cs" />
+    <Compile Include="..\TributeWeightCatalog.cs" Link="TributeWeightCatalog.cs" />
+    <Compile Include="..\TributeWeightBaselineCache.cs" Link="TributeWeightBaselineCache.cs" />
+  </ItemGroup>
+</Project>
