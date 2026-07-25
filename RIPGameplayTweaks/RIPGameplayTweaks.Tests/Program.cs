@@ -16,6 +16,7 @@ internal static class Program
             AssertNear(1.0, Parse("-1", 1.0), "negative keeps previous");
             AssertNear(1.0, Parse("101", 1.0), "over-limit keeps previous");
             InvalidMultiplierWarnsWithKey();
+            ConfigParsesKnownKeysAndIgnoresUnknowns();
             AssertNear(15f, TributeMultiplierMath.Apply(10f, 1.5), "runtime scale");
             RuntimeScaleRejectsOverflow();
             AssertEqual("攻击+15%", TributeValueFormatter.Apply("攻击+10%", 1.5), "integer text");
@@ -47,6 +48,28 @@ internal static class Program
         {
             throw new InvalidOperationException("invalid multiplier warning includes key");
         }
+    }
+
+    private static void ConfigParsesKnownKeysAndIgnoresUnknowns()
+    {
+        var config = GameplayTweaksConfig.ParseLines(
+            new[]
+            {
+                "",
+                "# 配置注释",
+                "absorbEnabled=0",
+                "tributeAttributeMultiplier=2.25",
+                "unknownKey=ignored"
+            },
+            new GameplayTweaksConfig(),
+            _ => { });
+
+        if (config.AbsorbEnabled)
+        {
+            throw new InvalidOperationException("absorbEnabled=0 disables absorb");
+        }
+
+        AssertNear(2.25, config.TributeAttributeMultiplier, "config multiplier");
     }
 
     private static void RuntimeScaleRejectsOverflow()
