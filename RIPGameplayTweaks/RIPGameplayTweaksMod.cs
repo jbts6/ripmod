@@ -30,6 +30,16 @@ public sealed class RIPGameplayTweaksMod : MelonMod
                    " tributeAttributeMultiplier=" + CurrentConfig.TributeAttributeMultiplier);
     }
 
+    public override void OnUpdate()
+    {
+        ReloadConfigIfChanged();
+        if (CurrentConfig.AbsorbEnabled &&
+            UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.F))
+        {
+            GlobalDropAbsorber.TryAbsorbAll();
+        }
+    }
+
     public static void ReloadConfigIfChanged(bool force = false)
     {
         try

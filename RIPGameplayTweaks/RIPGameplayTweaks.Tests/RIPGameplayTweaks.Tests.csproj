@@ -8,6 +8,7 @@
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\AbsorbOperationGate.cs" Link="AbsorbOperationGate.cs" />
     <Compile Include="..\GameplayTweaksConfig.cs" Link="GameplayTweaksConfig.cs" />
     <Compile Include="..\GameplayTweaksConfigValueParser.cs" Link="GameplayTweaksConfigValueParser.cs" />
     <Compile Include="..\TributeMultiplierMath.cs" Link="TributeMultiplierMath.cs" />

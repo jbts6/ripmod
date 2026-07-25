@@ -17,6 +17,7 @@ internal static class Program
             AssertNear(1.0, Parse("101", 1.0), "over-limit keeps previous");
             InvalidMultiplierWarnsWithKey();
             ConfigParsesKnownKeysAndIgnoresUnknowns();
+            AbsorbGateRejectsOverlappingOperations();
             AssertNear(15f, TributeMultiplierMath.Apply(10f, 1.5), "runtime scale");
             RuntimeScaleRejectsOverflow();
             AssertEqual("攻击+15%", TributeValueFormatter.Apply("攻击+10%", 1.5), "integer text");
@@ -72,6 +73,18 @@ internal static class Program
         AssertNear(2.25, config.TributeAttributeMultiplier, "config multiplier");
     }
 
+    private static void AbsorbGateRejectsOverlappingOperations()
+    {
+        var gate = new AbsorbOperationGate();
+        AssertTrue(gate.TryBegin(), "first absorb begins");
+        AssertFalse(gate.TryBegin(), "overlapping absorb rejected");
+        gate.Complete();
+        AssertTrue(gate.TryBegin(), "new absorb allowed after completion");
+        gate.Complete();
+        gate.Complete();
+        AssertFalse(gate.IsPending, "completion is idempotent");
+    }
+
     private static void RuntimeScaleRejectsOverflow()
     {
         try
@@ -100,5 +113,17 @@ internal static class Program
         {
             throw new InvalidOperationException(description + ": expected '" + expected + "', got '" + actual + "'");
         }
+    }
+
+    private static void AssertTrue(bool value, string description)
+    {
+        if (!value)
+            throw new InvalidOperationException(description + ": expected true");
+    }
+
+    private static void AssertFalse(bool value, string description)
+    {
+        if (value)
+            throw new InvalidOperationException(description + ": expected false");
     }
 }
