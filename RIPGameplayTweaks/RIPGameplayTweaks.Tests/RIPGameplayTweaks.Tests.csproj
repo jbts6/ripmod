@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\GameplayTweaksConfigValueParser.cs" Link="GameplayTweaksConfigValueParser.cs" />
+    <Compile Include="..\TributeMultiplierMath.cs" Link="TributeMultiplierMath.cs" />
+    <Compile Include="..\TributeValueFormatter.cs" Link="TributeValueFormatter.cs" />
+  </ItemGroup>
+</Project>
