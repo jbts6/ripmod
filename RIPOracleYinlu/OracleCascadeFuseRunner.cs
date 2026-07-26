@@ -21,7 +21,7 @@ internal static class OracleCascadeFuseRunner
 
         if (view.isOneKeyOracleFusePlaying)
         {
-            Notify(view, "[CascadeFuse] 原版一键动画播放中，稍后再按 G");
+            RIPOracleYinluMod.Logger?.Msg("[CascadeFuse] 原版一键动画播放中，稍后再按 G");
             return false;
         }
 
@@ -34,7 +34,7 @@ internal static class OracleCascadeFuseRunner
 
         if (!fuse.HasBatchFuseAvailableOnce())
         {
-            Notify(view, "[CascadeFuse] 当前没有可批量合成的命石");
+            RIPOracleYinluMod.Logger?.Msg("[CascadeFuse] 当前没有可批量合成的命石");
             RefreshUi(view, fuse);
             return false;
         }
