@@ -13,6 +13,7 @@ internal static class Program
             NativePatchTransactionTests.RunAll();
             YinluAdvanceTests.RunAll();
             CashGainTests.RunAll();
+            IntegrationStaticTests.RunAll();
 
             Console.WriteLine("ALL TESTS PASSED");
             return 0;
