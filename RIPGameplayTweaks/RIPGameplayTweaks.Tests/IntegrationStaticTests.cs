@@ -35,9 +35,9 @@ internal static class IntegrationStaticTests
             "cash patches cover restore, battle and common cache stages");
 
         var catalog = OracleFusionPatchCatalog.Create();
-        TestAssert.Equal(14, catalog.Count, "oracle catalog signature count");
+        TestAssert.Equal(16, catalog.Count, "oracle catalog signature count");
         TestAssert.Equal(
-            18,
+            20,
             catalog.Sum(spec => spec.Replacements.Count),
             "oracle catalog replacement count");
     }

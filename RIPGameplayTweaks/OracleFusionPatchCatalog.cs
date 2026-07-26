@@ -10,6 +10,7 @@ internal static class OracleFusionPatchCatalog
         var patches = new List<BinaryPatchSpec>();
         patches.AddRange(CreateBatchPatches());
         patches.AddRange(CreateCompletionPatches());
+        patches.AddRange(CreateStartConfirmPatches());
         patches.AddRange(CreateUniversalStonePatches());
         return patches;
     }
@@ -72,6 +73,22 @@ internal static class OracleFusionPatchCatalog
                 "41 83 FE 03 0F 9C C2 45 33 C0 E8 ?? ?? ?? ?? 41 83 FE 03 7C ?? 4D 85 FF",
                 new ByteReplacement(3, "03", "02"),
                 new ByteReplacement(18, "03", "02"))
+        };
+    }
+
+    // QuitOracleFuseStart_Joystick/Keyboard_View gate on placed+pending count before tips.
+    private static IReadOnlyList<BinaryPatchSpec> CreateStartConfirmPatches()
+    {
+        return new[]
+        {
+            new BinaryPatchSpec(
+                "start confirm joystick threshold",
+                "8B 48 78 03 CF 83 F9 03 0F 8C ?? ?? ?? ??",
+                new ByteReplacement(7, "03", "02")),
+            new BinaryPatchSpec(
+                "start confirm keyboard threshold",
+                "8B 48 78 03 CE 83 F9 03 0F 8C ?? ?? ?? ??",
+                new ByteReplacement(7, "03", "02"))
         };
     }
 

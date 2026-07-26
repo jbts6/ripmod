@@ -83,11 +83,11 @@ internal static class OracleFusionPatchTests
 
         PeImageFile pe = PeImageFile.Parse(image);
         IReadOnlyList<BinaryPatchSpec> catalog = OracleFusionPatchCatalog.Create();
-        TestAssert.Equal(14, catalog.Count, "oracle fusion signature count");
+        TestAssert.Equal(16, catalog.Count, "oracle fusion signature count");
 
         var prepared = catalog.Select(spec => spec.Prepare(image, pe)).ToArray();
         TestAssert.Equal(
-            18,
+            20,
             prepared.Sum(item => item.Replacements.Count),
             "oracle fusion replacement count");
 
