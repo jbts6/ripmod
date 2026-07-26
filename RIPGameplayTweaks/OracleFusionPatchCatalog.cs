@@ -7,6 +7,15 @@ internal static class OracleFusionPatchCatalog
 
     public static IReadOnlyList<BinaryPatchSpec> Create()
     {
+        var patches = new List<BinaryPatchSpec>();
+        patches.AddRange(CreateBatchPatches());
+        patches.AddRange(CreateCompletionPatches());
+        patches.AddRange(CreateUniversalStonePatches());
+        return patches;
+    }
+
+    private static IReadOnlyList<BinaryPatchSpec> CreateBatchPatches()
+    {
         return new[]
         {
             new BinaryPatchSpec(
@@ -28,7 +37,14 @@ internal static class OracleFusionPatchCatalog
             new BinaryPatchSpec(
                 "batch material validation",
                 "83 7F 18 03 0F 8C ?? ?? ?? ?? 4C 8B 05 ?? ?? ?? ?? 48 8D 54 24 38",
-                new ByteReplacement(3, "03", "02")),
+                new ByteReplacement(3, "03", "02"))
+        };
+    }
+
+    private static IReadOnlyList<BinaryPatchSpec> CreateCompletionPatches()
+    {
+        return new[]
+        {
             new BinaryPatchSpec(
                 "manual material requirement",
                 "4C 89 AC 24 80 00 00 00 B8 03 00 00 00 2B 47 78",
@@ -55,7 +71,14 @@ internal static class OracleFusionPatchCatalog
                 "manual button and preview threshold",
                 "41 83 FE 03 0F 9C C2 45 33 C0 E8 ?? ?? ?? ?? 41 83 FE 03 7C ?? 4D 85 FF",
                 new ByteReplacement(3, "03", "02"),
-                new ByteReplacement(18, "03", "02")),
+                new ByteReplacement(18, "03", "02"))
+        };
+    }
+
+    private static IReadOnlyList<BinaryPatchSpec> CreateUniversalStonePatches()
+    {
+        return new[]
+        {
             new BinaryPatchSpec(
                 "universal stone auto fill",
                 "BB 03 00 00 00 2B 5C 24 40 85 DB 7E ??",
