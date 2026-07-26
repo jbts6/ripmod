@@ -15,5 +15,6 @@
     <Compile Include="..\OracleFusionPatchCatalog.cs" Link="OracleFusionPatchCatalog.cs" />
     <Compile Include="..\PeImageFile.cs" Link="PeImageFile.cs" />
     <Compile Include="..\YinluAdvanceDecision.cs" Link="YinluAdvanceDecision.cs" />
+    <Compile Include="..\OracleCascadeFuseLogic.cs" Link="OracleCascadeFuseLogic.cs" />
   </ItemGroup>
 </Project>

@@ -4,7 +4,7 @@ using System.Reflection;
 using HarmonyLib;
 using MelonLoader;
 
-[assembly: MelonInfo(typeof(RIPOracleYinluMod), "RIPOracleYinlu", "1.0.0", "you")]
+[assembly: MelonInfo(typeof(RIPOracleYinluMod), "RIPOracleYinlu", "1.1.0", "you")]
 [assembly: MelonGame(null, "REST IN PEACE")]
 
 public sealed class RIPOracleYinluMod : MelonMod
@@ -34,8 +34,22 @@ public sealed class RIPOracleYinluMod : MelonMod
             message => Logger.Error(message));
 
         Logger.Msg("[Features] oracleFusion=" + oracleFusionEnabled +
-                   " yinluSingleMaterial=true");
-        Logger.Msg("[Config] path=" + ConfigPath + " (no switches; both features always on)");
+                   " yinluSingleMaterial=true" +
+                   " cascadeFuseHotkey=G");
+        Logger.Msg("[Config] path=" + ConfigPath +
+                   " (cascade: open fuse UI then press G to fuse all tiers)");
+    }
+
+    public override void OnUpdate()
+    {
+        try
+        {
+            OracleCascadeFuseRunner.TryRunFromHotkey();
+        }
+        catch (Exception exception)
+        {
+            Logger?.Error("[CascadeFuse] update failed: " + exception);
+        }
     }
 
     private static void EnsureConfigTemplate()
@@ -51,10 +65,11 @@ public sealed class RIPOracleYinluMod : MelonMod
 
             File.WriteAllLines(ConfigPath, new[]
             {
-                "# RIPOracleYinlu 1.0.0",
-                "# 命石二合一 + 阴律单材料进阶。",
-                "# 当前版本两项默认启用，无需配置开关。",
-                "# 命石依赖 GameAssembly.dll 哈希与 16 签名全有或全无预检。"
+                "# RIPOracleYinlu 1.1.0",
+                "# 命石二合一 + 阴律单材料进阶 + 界面内 G 键一路合成到顶。",
+                "# 当前版本默认启用，无需配置开关。",
+                "# 命石依赖 GameAssembly.dll 哈希与签名全有或全无预检。",
+                "# 打开命石合成界面后按 G：循环原版批量合成直到无法再合。"
             });
         }
         catch (Exception exception)

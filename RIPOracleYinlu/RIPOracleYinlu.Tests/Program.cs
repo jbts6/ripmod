@@ -9,6 +9,7 @@ internal static class Program
             OracleFusionPatchTests.RunAll();
             NativePatchTransactionTests.RunAll();
             YinluAdvanceTests.RunAll();
+            OracleCascadeFuseTests.RunAll();
             IntegrationStaticTests.RunAll();
 
             Console.WriteLine("ALL TESTS PASSED");
