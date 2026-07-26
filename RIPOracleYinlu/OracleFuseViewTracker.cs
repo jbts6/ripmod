@@ -43,8 +43,35 @@ internal static class OracleFuseOpenOracleFusePatch
     }
 }
 
+[HarmonyPatch(typeof(ViewOracleFuseSys), nameof(ViewOracleFuseSys.OpenOracleFuse_Keyboard_View))]
+internal static class OracleFuseOpenKeyboardViewPatch
+{
+    private static void Postfix(ViewOracleFuseSys __instance)
+    {
+        OracleFuseViewTracker.SetActive(__instance);
+    }
+}
+
+[HarmonyPatch(typeof(ViewOracleFuseSys), nameof(ViewOracleFuseSys.OpenOracleFuse_Joystick_View))]
+internal static class OracleFuseOpenJoystickViewPatch
+{
+    private static void Postfix(ViewOracleFuseSys __instance)
+    {
+        OracleFuseViewTracker.SetActive(__instance);
+    }
+}
+
 [HarmonyPatch(typeof(ViewOracleFuseSys), nameof(ViewOracleFuseSys.CloseFuseUI))]
 internal static class OracleFuseCloseFuseUiPatch
+{
+    private static void Postfix(ViewOracleFuseSys __instance)
+    {
+        OracleFuseViewTracker.ClearIfMatch(__instance);
+    }
+}
+
+[HarmonyPatch(typeof(ViewOracleFuseSys), nameof(ViewOracleFuseSys.QuitOracleFuse_Keyboard_View))]
+internal static class OracleFuseQuitKeyboardViewPatch
 {
     private static void Postfix(ViewOracleFuseSys __instance)
     {
