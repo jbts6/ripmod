@@ -11,6 +11,7 @@ internal static class Program
             TributeTests.RunAll();
             OracleFusionPatchTests.RunAll();
             NativePatchTransactionTests.RunAll();
+            YinluAdvanceTests.RunAll();
 
             Console.WriteLine("ALL TESTS PASSED");
             return 0;

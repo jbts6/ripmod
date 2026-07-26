@@ -18,6 +18,7 @@
     <Compile Include="..\BytePattern.cs" Link="BytePattern.cs" />
     <Compile Include="..\OracleFusionPatchCatalog.cs" Link="OracleFusionPatchCatalog.cs" />
     <Compile Include="..\PeImageFile.cs" Link="PeImageFile.cs" />
+    <Compile Include="..\YinluAdvanceDecision.cs" Link="YinluAdvanceDecision.cs" />
     <Compile Include="..\TributeMultiplierMath.cs" Link="TributeMultiplierMath.cs" />
     <Compile Include="..\TributeValueFormatter.cs" Link="TributeValueFormatter.cs" />
   </ItemGroup>
