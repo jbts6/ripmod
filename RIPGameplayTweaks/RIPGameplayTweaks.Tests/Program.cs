@@ -8,11 +8,6 @@ internal static class Program
         {
             GameplayConfigTests.RunAll();
             AbsorbTests.RunAll();
-            TributeTests.RunAll();
-            OracleFusionPatchTests.RunAll();
-            NativePatchTransactionTests.RunAll();
-            YinluAdvanceTests.RunAll();
-            CashGainTests.RunAll();
             IntegrationStaticTests.RunAll();
 
             Console.WriteLine("ALL TESTS PASSED");

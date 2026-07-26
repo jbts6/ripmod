@@ -4,8 +4,6 @@ using System.Collections.Generic;
 public sealed class GameplayTweaksConfig
 {
     public bool AbsorbEnabled { get; private set; } = true;
-    public double TributeAttributeMultiplier { get; private set; } = 1.5;
-    public double CashGainMultiplier { get; private set; } = 1.0;
 
     public static GameplayTweaksConfig ParseLines(
         IEnumerable<string> lines,
@@ -15,9 +13,7 @@ public sealed class GameplayTweaksConfig
         GameplayTweaksConfig source = previous ?? new GameplayTweaksConfig();
         var result = new GameplayTweaksConfig
         {
-            AbsorbEnabled = source.AbsorbEnabled,
-            TributeAttributeMultiplier = source.TributeAttributeMultiplier,
-            CashGainMultiplier = source.CashGainMultiplier
+            AbsorbEnabled = source.AbsorbEnabled
         };
 
         if (lines == null)
@@ -39,22 +35,7 @@ public sealed class GameplayTweaksConfig
             {
                 result.AbsorbEnabled = ParseBoolOrKeep(value, result.AbsorbEnabled, key, warn);
             }
-            else if (string.Equals(key, "tributeAttributeMultiplier", StringComparison.OrdinalIgnoreCase))
-            {
-                result.TributeAttributeMultiplier = GameplayTweaksConfigValueParser.ParseMultiplierOrKeep(
-                    value,
-                    result.TributeAttributeMultiplier,
-                    key,
-                    warn);
-            }
-            else if (string.Equals(key, "cashGainMultiplier", StringComparison.OrdinalIgnoreCase))
-            {
-                result.CashGainMultiplier = GameplayTweaksConfigValueParser.ParseMultiplierOrKeep(
-                    value,
-                    result.CashGainMultiplier,
-                    key,
-                    warn);
-            }
+            // 旧键忽略：tributeAttributeMultiplier / cashGainMultiplier 已迁至 QualityBoost
         }
 
         return result;
