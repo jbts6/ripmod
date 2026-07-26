@@ -32,9 +32,9 @@ internal static class IntegrationStaticTests
             "oracle mod does not own cash or absorb config");
 
         var catalog = OracleFusionPatchCatalog.Create();
-        TestAssert.Equal(16, catalog.Count, "oracle catalog signature count");
+        TestAssert.Equal(17, catalog.Count, "oracle catalog signature count");
         TestAssert.Equal(
-            20,
+            21,
             catalog.Sum(spec => spec.Replacements.Count),
             "oracle catalog replacement count");
     }

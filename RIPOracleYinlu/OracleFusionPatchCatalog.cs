@@ -68,6 +68,11 @@ internal static class OracleFusionPatchCatalog
                 "C7 84 24 B8 00 00 00 03 00 00 00 83 F8 03 0F 8F",
                 new ByteReplacement(7, "03", "02"),
                 new ByteReplacement(13, "03", "02")),
+            // EquipOracleFuse over-capacity: remainder = count - 3 must become count - 2.
+            new BinaryPatchSpec(
+                "manual over-capacity remainder",
+                "44 8D 40 FD 49 8B 81 B8 01 00 00 4D 8B 89 C0 01 00 00 48 8B 15 ?? ?? ?? ?? 48 8B CF",
+                new ByteReplacement(3, "FD", "FE")),
             new BinaryPatchSpec(
                 "manual button and preview threshold",
                 "41 83 FE 03 0F 9C C2 45 33 C0 E8 ?? ?? ?? ?? 41 83 FE 03 7C ?? 4D 85 FF",
