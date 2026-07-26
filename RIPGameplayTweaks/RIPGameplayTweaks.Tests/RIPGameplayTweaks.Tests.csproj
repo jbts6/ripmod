@@ -19,6 +19,9 @@
     <Compile Include="..\OracleFusionPatchCatalog.cs" Link="OracleFusionPatchCatalog.cs" />
     <Compile Include="..\PeImageFile.cs" Link="PeImageFile.cs" />
     <Compile Include="..\YinluAdvanceDecision.cs" Link="YinluAdvanceDecision.cs" />
+    <Compile Include="..\CashGainMath.cs" Link="CashGainMath.cs" />
+    <Compile Include="..\CashGainContext.cs" Link="CashGainContext.cs" />
+    <Compile Include="..\CashGainKey.cs" Link="CashGainKey.cs" />
     <Compile Include="..\TributeMultiplierMath.cs" Link="TributeMultiplierMath.cs" />
     <Compile Include="..\TributeValueFormatter.cs" Link="TributeValueFormatter.cs" />
   </ItemGroup>

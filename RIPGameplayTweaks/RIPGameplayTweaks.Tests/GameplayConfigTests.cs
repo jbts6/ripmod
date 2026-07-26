@@ -10,11 +10,13 @@ internal static class GameplayConfigTests
         TestAssert.Near(1.0, Parse("NaN", 1.0), "NaN keeps previous");
         TestAssert.Near(1.0, Parse("Infinity", 1.0), "Infinity keeps previous");
         TestAssert.Near(1.0, Parse("-1", 1.0), "negative keeps previous");
+        TestAssert.Near(1.0, Parse("0", 1.0), "zero keeps previous");
         TestAssert.Near(1.0, Parse("101", 1.0), "over-limit keeps previous");
         InvalidMultiplierWarnsWithKey();
         ConfigParsesKnownKeysAndIgnoresUnknowns();
         ConfigParsesMixedCaseKeys();
         ConfigKeepsPreviousMultiplierAfterInvalidReload();
+        ConfigParsesCashGainMultiplier();
     }
 
     private static double Parse(string raw, double previous)
@@ -92,5 +94,15 @@ internal static class GameplayConfigTests
         TestAssert.Equal(1, warnings.Count, "invalid reload writes one warning");
         if (!warnings[0].Contains("tributeAttributeMultiplier", StringComparison.Ordinal))
             throw new InvalidOperationException("invalid reload warning includes multiplier key");
+    }
+
+    private static void ConfigParsesCashGainMultiplier()
+    {
+        GameplayTweaksConfig config = GameplayTweaksConfig.ParseLines(
+            new[] { "cashGainMultiplier=2.5" },
+            new GameplayTweaksConfig(),
+            _ => { });
+
+        TestAssert.Near(2.5, config.CashGainMultiplier, "cash gain multiplier");
     }
 }

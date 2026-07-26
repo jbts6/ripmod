@@ -9,7 +9,7 @@ public static class GameplayTweaksConfigValueParser
         if (!double.TryParse(raw, NumberStyles.Float, CultureInfo.InvariantCulture, out value) ||
             double.IsNaN(value) ||
             double.IsInfinity(value) ||
-            value < 0 ||
+            value <= 0 ||
             value > 100)
         {
             warn("Invalid multiplier for " + key + ": '" + raw + "'. Keeping previous value.");

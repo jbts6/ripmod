@@ -12,6 +12,7 @@ internal static class Program
             OracleFusionPatchTests.RunAll();
             NativePatchTransactionTests.RunAll();
             YinluAdvanceTests.RunAll();
+            CashGainTests.RunAll();
 
             Console.WriteLine("ALL TESTS PASSED");
             return 0;

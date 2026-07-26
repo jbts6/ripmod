@@ -5,6 +5,7 @@ public sealed class GameplayTweaksConfig
 {
     public bool AbsorbEnabled { get; private set; } = true;
     public double TributeAttributeMultiplier { get; private set; } = 1.5;
+    public double CashGainMultiplier { get; private set; } = 1.0;
 
     public static GameplayTweaksConfig ParseLines(
         IEnumerable<string> lines,
@@ -15,7 +16,8 @@ public sealed class GameplayTweaksConfig
         var result = new GameplayTweaksConfig
         {
             AbsorbEnabled = source.AbsorbEnabled,
-            TributeAttributeMultiplier = source.TributeAttributeMultiplier
+            TributeAttributeMultiplier = source.TributeAttributeMultiplier,
+            CashGainMultiplier = source.CashGainMultiplier
         };
 
         if (lines == null)
@@ -42,6 +44,14 @@ public sealed class GameplayTweaksConfig
                 result.TributeAttributeMultiplier = GameplayTweaksConfigValueParser.ParseMultiplierOrKeep(
                     value,
                     result.TributeAttributeMultiplier,
+                    key,
+                    warn);
+            }
+            else if (string.Equals(key, "cashGainMultiplier", StringComparison.OrdinalIgnoreCase))
+            {
+                result.CashGainMultiplier = GameplayTweaksConfigValueParser.ParseMultiplierOrKeep(
+                    value,
+                    result.CashGainMultiplier,
                     key,
                     warn);
             }
