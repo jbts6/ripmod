@@ -30,6 +30,7 @@ public sealed class RIPGameplayTweaksMod : MelonMod
     public override void OnUpdate()
     {
         ReloadConfigIfChanged();
+        GlobalDropAbsorber.Update();
         if (CurrentConfig.AbsorbEnabled &&
             UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.F))
         {
