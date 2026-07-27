@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\BinaryPatchSpec.cs" Link="BinaryPatchSpec.cs" />
+    <Compile Include="..\BytePattern.cs" Link="BytePattern.cs" />
+    <Compile Include="..\INativePatchWriter.cs" Link="INativePatchWriter.cs" />
+    <Compile Include="..\NativePatchTransaction.cs" Link="NativePatchTransaction.cs" />
+    <Compile Include="..\OracleFusionPatchCatalog.cs" Link="OracleFusionPatchCatalog.cs" />
+    <Compile Include="..\PeImageFile.cs" Link="PeImageFile.cs" />
+    <Compile Include="..\YinluAdvanceDecision.cs" Link="YinluAdvanceDecision.cs" />
+    <Compile Include="..\OracleCascadeFuseLogic.cs" Link="OracleCascadeFuseLogic.cs" />
+  </ItemGroup>
+</Project>

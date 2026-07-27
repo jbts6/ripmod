@@ -9,10 +9,10 @@ using Il2CppBattle;
 using Il2CppRushUser;
 using Il2CppNZUser;
 
-[assembly: MelonInfo(typeof(QualityBoostMod), "QualityBoostMod", "1.2.1", "you")]
+[assembly: MelonInfo(typeof(QualityBoostMod), "QualityBoostMod", "1.3.0", "you")]
 [assembly: MelonGame(null, "REST IN PEACE")]
 
-// v1.2.1: 阴律通过 FetchFloatValue 返回值覆盖实现概率下限。
+// v1.3.0: 合并贡品属性倍率与纸钞正向获取倍率。
 public class QualityBoostMod : MelonMod
 {
     public static MelonLogger.Instance L;
@@ -26,12 +26,14 @@ public class QualityBoostMod : MelonMod
         L = LoggerInstance;
         var h = new HarmonyLib.Harmony("rip.tribute.qualityboost");
         h.PatchAll(Assembly.GetExecutingAssembly());
-        L.Msg("QualityBoostMod v1.2.1: 贡品、阴律与商店品质控制已启用。");
+        L.Msg("QualityBoostMod v1.3.0: 品质控制 + 贡品属性倍率 + 纸钞获取倍率。");
         ReloadCfg();
         L.Msg($"  enabled={Cfg.enabled} targetDepot={Cfg.targetDepot} boostChance={Cfg.boostChance}" +
               $" shangshangChance={Cfg.shangshangChance} shangshangMultiplier={Cfg.shangshangMultiplier}");
         L.Msg($"  yinluEnabled={Cfg.yinluEnabled} yinluLegendChance={Cfg.yinluLegendChance}" +
               $" shopEnabled={Cfg.shopEnabled} shopLegendChance={Cfg.shopLegendChance}");
+        L.Msg($"  tributeAttributeMultiplier={Cfg.tributeAttributeMultiplier}" +
+              $" cashGainMultiplier={Cfg.cashGainMultiplier}");
         L.Msg($"  cfg={Path.GetFullPath(CfgPath)}");
     }
 
@@ -46,6 +48,8 @@ public class QualityBoostMod : MelonMod
         public double yinluLegendChance = 0.70;
         public bool shopEnabled = true;
         public double shopLegendChance = 0.70;
+        public double tributeAttributeMultiplier = 1.5;
+        public double cashGainMultiplier = 1.0;
     }
 
     public static CfgData Cfg = new CfgData();
@@ -80,7 +84,9 @@ public class QualityBoostMod : MelonMod
             yinluEnabled = source.yinluEnabled,
             yinluLegendChance = source.yinluLegendChance,
             shopEnabled = source.shopEnabled,
-            shopLegendChance = source.shopLegendChance
+            shopLegendChance = source.shopLegendChance,
+            tributeAttributeMultiplier = source.tributeAttributeMultiplier,
+            cashGainMultiplier = source.cashGainMultiplier
         };
     }
 
@@ -126,6 +132,18 @@ public class QualityBoostMod : MelonMod
                 value,
                 config.shopLegendChance,
                 key);
+        else if (key == "tributeattributemultiplier")
+            config.tributeAttributeMultiplier = QualityBoostConfigValueParser.ParseMultiplierOrKeep(
+                value,
+                config.tributeAttributeMultiplier,
+                key,
+                message => L?.Warning(message));
+        else if (key == "cashgainmultiplier")
+            config.cashGainMultiplier = QualityBoostConfigValueParser.ParseMultiplierOrKeep(
+                value,
+                config.cashGainMultiplier,
+                key,
+                message => L?.Warning(message));
     }
 
     private static void ValidateConfig(CfgData config, CfgData previous)

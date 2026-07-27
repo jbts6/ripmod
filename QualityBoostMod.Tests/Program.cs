@@ -6,8 +6,9 @@ internal static class Program
     {
         try
         {
-            GameplayConfigTests.RunAll();
-            AbsorbTests.RunAll();
+            MultiplierConfigTests.RunAll();
+            CashGainTests.RunAll();
+            TributeTests.RunAll();
             IntegrationStaticTests.RunAll();
 
             Console.WriteLine("ALL TESTS PASSED");

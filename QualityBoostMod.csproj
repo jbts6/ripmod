@@ -11,6 +11,8 @@
   <ItemGroup>
     <Compile Remove="TributeWeightMath.Tests\**\*.cs" />
     <Compile Remove="RIPGameplayTweaks\**\*.cs" />
+    <Compile Remove="RIPOracleYinlu\**\*.cs" />
+    <Compile Remove="QualityBoostMod.Tests\**\*.cs" />
 
     <!-- MelonLoader + Il2CppInterop (loader 自带, 不复制到输出) -->
     <Reference Include="MelonLoader">

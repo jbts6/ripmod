@@ -11,14 +11,14 @@ internal static class TributeRuntimeMultiplierPatch
     {
         try
         {
-            RIPGameplayTweaksMod.ReloadConfigIfChanged();
-            double multiplier = RIPGameplayTweaksMod.CurrentConfig.TributeAttributeMultiplier;
+            QualityBoostMod.ReloadCfg();
+            double multiplier = QualityBoostMod.Cfg.tributeAttributeMultiplier;
             if (multiplier != 1.0)
                 __1 = TributeMultiplierMath.Apply(__1, multiplier);
         }
         catch (Exception exception)
         {
-            RIPGameplayTweaksMod.Logger?.Error("[Tribute] runtime multiplier failed: " + exception);
+            QualityBoostMod.L?.Error("[Tribute] runtime multiplier failed: " + exception);
         }
     }
 }
@@ -37,14 +37,14 @@ internal static class TributeDisplayMultiplierPatch
     {
         try
         {
-            RIPGameplayTweaksMod.ReloadConfigIfChanged();
+            QualityBoostMod.ReloadCfg();
             __result = TributeValueFormatter.Apply(
                 __result,
-                RIPGameplayTweaksMod.CurrentConfig.TributeAttributeMultiplier);
+                QualityBoostMod.Cfg.tributeAttributeMultiplier);
         }
         catch (Exception exception)
         {
-            RIPGameplayTweaksMod.Logger?.Error("[Tribute] display multiplier failed: " + exception);
+            QualityBoostMod.L?.Error("[Tribute] display multiplier failed: " + exception);
         }
     }
 }

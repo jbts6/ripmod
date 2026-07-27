@@ -24,4 +24,28 @@ public static class QualityBoostConfigValueParser
             $"{key}='{raw ?? "null"}' 不是有效有限数字，保留 {previous:R}。");
         return previous;
     }
+
+    public static double ParseMultiplierOrKeep(
+        string raw,
+        double previous,
+        string key,
+        Action<string> warning)
+    {
+        if (double.TryParse(
+                raw,
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture,
+                out double value) &&
+            !double.IsNaN(value) &&
+            !double.IsInfinity(value) &&
+            value > 0 &&
+            value <= 100)
+        {
+            return value;
+        }
+
+        warning?.Invoke(
+            "Invalid multiplier for " + key + ": '" + (raw ?? "null") + "'. Keeping previous value.");
+        return previous;
+    }
 }
