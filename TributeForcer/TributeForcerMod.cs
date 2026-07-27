@@ -1,14 +1,11 @@
 using System;
 using System.IO;
 using System.Reflection;
-using System.Collections.Generic;
 using HarmonyLib;
 using MelonLoader;
-using Il2CppBattle;
-using Il2CppRushUser;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(TributeForcerMod), "TributeForcer", "1.0.0", "you")]
+[assembly: MelonInfo(typeof(TributeForcerMod), "TributeForcer", "1.2.5", "you")]
 [assembly: MelonGame(null, "REST IN PEACE")]
 
 public sealed class TributeForcerMod : MelonMod
@@ -21,7 +18,6 @@ public sealed class TributeForcerMod : MelonMod
 
     public static TributeForcerConfig Config { get; private set; } = TributeForcerConfig.CreateDefault();
 
-    private GameObject _uiHost;
     private TributeForcerUI _ui;
 
     public override void OnInitializeMelon()
@@ -30,32 +26,108 @@ public sealed class TributeForcerMod : MelonMod
         var harmony = new HarmonyLib.Harmony("rip.tribute.forcer");
         harmony.PatchAll(Assembly.GetExecutingAssembly());
         ReloadConfig();
-        Logger.Msg("[TributeForcer] v1.0.0 已启用。按 F7 打开贡品选择界面。");
-        Logger.Msg($"[TributeForcer] cfg={ConfigPath} enabled={Config.Enabled}");
+        SaveConfig();
+        _ui = new TributeForcerUI();
+        _ui.RequestClose = CloseUI;
+        _ui.RequestToggle = ToggleUI;
+        Logger.Msg($"[TributeForcer] v1.2.5 已启用。按 {Config.ToggleKey} 开关，ESC/关闭按钮 可关。");
+        Logger.Msg($"[TributeForcer] cfg={ConfigPath} enabled={Config.Enabled} hotkey={Config.ToggleKey}");
+    }
+
+    public override void OnApplicationQuit()
+    {
+        TributeNameResolver.FlushIfDirty();
     }
 
     public override void OnUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.F7))
+        // 仅 Input.GetKeyDown 边沿（不是每帧扫键轮询）。
+        // 打开态关闭：IMGUI 在 TextField 前拦 Event；若 Melon 只派发 Repaint，则靠这里兜底。
+        try
         {
-            ToggleUI();
+            if (_ui == null)
+                return;
+
+            KeyCode hotkey = Config?.ToggleKey ?? KeyCode.F7;
+
+            if (_ui.Visible)
+            {
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    CloseUI();
+                    return;
+                }
+                if (hotkey != KeyCode.None && hotkey != KeyCode.Escape && Input.GetKeyDown(hotkey))
+                    CloseUI();
+                return;
+            }
+
+            if (hotkey != KeyCode.None && hotkey != KeyCode.Escape && Input.GetKeyDown(hotkey))
+                OpenUI();
+        }
+        catch (Exception ex)
+        {
+            Logger?.Error("[TributeForcer] key handle err: " + ex);
+        }
+    }
+
+    public override void OnGUI()
+    {
+        try
+        {
+            _ui?.Draw();
+        }
+        catch (Exception ex)
+        {
+            Logger?.Error("[TributeForcer] OnGUI err: " + ex);
+            if (_ui != null)
+                _ui.Visible = false;
         }
     }
 
     private void ToggleUI()
     {
-        if (_uiHost == null)
+        if (_ui == null)
         {
-            _uiHost = new GameObject("TributeForcerUI");
-            UnityEngine.Object.DontDestroyOnLoad(_uiHost);
-            _ui = _uiHost.AddComponent<TributeForcerUI>();
-            Logger.Msg("[TributeForcer] UI 宿主已创建。");
+            _ui = new TributeForcerUI();
+            _ui.RequestClose = CloseUI;
+            _ui.RequestToggle = ToggleUI;
         }
-        _ui.Visible = !_ui.Visible;
+
         if (_ui.Visible)
+            CloseUI();
+        else
+            OpenUI();
+    }
+
+    private void OpenUI()
+    {
+        if (_ui == null)
         {
-            _ui.RefreshCatalog();
+            _ui = new TributeForcerUI();
+            _ui.RequestClose = CloseUI;
+            _ui.RequestToggle = ToggleUI;
         }
+        _ui.Visible = true;
+        _ui.RefreshCatalog();
+        Logger?.Msg("[TributeForcer] UI 已打开。");
+    }
+
+    private void CloseUI()
+    {
+        if (_ui == null || !_ui.Visible)
+            return;
+
+        _ui.Visible = false;
+        try
+        {
+            // 必须在 OnGUI 事件里清焦点，否则 TextField 会继续吞键
+            GUIUtility.keyboardControl = 0;
+            GUIUtility.hotControl = 0;
+            GUI.FocusControl(null);
+        }
+        catch { /* OnUpdate 路径下 GUI 调用可能无效，忽略 */ }
+        Logger?.Msg("[TributeForcer] UI 已关闭。");
     }
 
     public static void ReloadConfig()

@@ -14,6 +14,19 @@ public sealed class TributeCatalogEntry
     public string Rarity;
     public float BaseWeight;
     public string DepotName;
+
+    /// <summary>配置 MAXTriCount，0 表示未知。</summary>
+    public int MaxCount;
+    /// <summary>当前已持有数量。</summary>
+    public int OwnedCount;
+    /// <summary>仍在 DropSys 锁定集（图鉴未解锁）。</summary>
+    public bool IsLocked;
+    /// <summary>持有数已达上限。</summary>
+    public bool IsFull;
+    /// <summary>理论上可被强制刷出（未锁且未满）。</summary>
+    public bool CanSelect = true;
+    /// <summary>列表状态短标签：可选/未解锁/已满…</summary>
+    public string StatusLabel = "可选";
 }
 
 public static class TributeCatalog
@@ -29,8 +42,6 @@ public static class TributeCatalog
             if (stage == null)
                 return result;
 
-            string currentDepot = GetCurrentDepoName(stage);
-
             var depoNames = EnumerateDepoNames(stage);
             foreach (string name in depoNames)
             {
@@ -45,7 +56,7 @@ public static class TributeCatalog
                     result.Add(new TributeCatalogEntry
                     {
                         Id = pair.Key,
-                        ChineseName = TributeNameResolver.Resolve(pair.Key) ?? "",
+                        ChineseName = "",
                         Rarity = ClassifyRarity(pair.Key),
                         BaseWeight = pair.Value,
                         DepotName = name,
@@ -57,15 +68,33 @@ public static class TributeCatalog
                 .GroupBy(x => x.Id, StringComparer.Ordinal)
                 .Select(g => g.First())
                 .ToList();
-            result.Sort((a, b) => string.Compare(a.Id, b.Id, StringComparison.OrdinalIgnoreCase));
 
-            if (!string.IsNullOrEmpty(currentDepot))
+            // 进界面即对当前仓库全部 ID 主动解析中文名（不依赖“刷出来过”）
+            TributeNameResolver.EnsureResolved(result.Select(e => e.Id));
+            foreach (var entry in result)
+                entry.ChineseName = TributeNameResolver.Resolve(entry.Id) ?? "";
+
+            // 解锁 / 持有上限状态
+            TributeStatus.Fill(result);
+
+            // 排序：可选 → 已满 → 未解锁；同组内稀有度高优先，再按中文名
+            // （不再按仓库拆分，避免同稀有度被打散）
+            result.Sort((a, b) =>
             {
-                result = result
-                    .OrderByDescending(x => x.DepotName == currentDepot ? 0 : 1)
-                    .ThenBy(x => x.Id, StringComparer.OrdinalIgnoreCase)
-                    .ToList();
-            }
+                int sa = StatusRank(a);
+                int sb = StatusRank(b);
+                if (sa != sb) return sa - sb;
+
+                int ra = RarityRank(a.Rarity);
+                int rb = RarityRank(b.Rarity);
+                if (ra != rb) return ra - rb;
+
+                string na = string.IsNullOrEmpty(a.ChineseName) ? a.Id : a.ChineseName;
+                string nb = string.IsNullOrEmpty(b.ChineseName) ? b.Id : b.ChineseName;
+                int nc = string.Compare(na, nb, StringComparison.OrdinalIgnoreCase);
+                if (nc != 0) return nc;
+                return string.Compare(a.Id, b.Id, StringComparison.OrdinalIgnoreCase);
+            });
         }
         catch (Exception ex)
         {
@@ -139,6 +168,28 @@ public static class TributeCatalog
         return null;
     }
 
+    /// <summary>可选(0) → 已满(1) → 未解锁(2)</summary>
+    private static int StatusRank(TributeCatalogEntry e)
+    {
+        if (e == null) return 9;
+        if (e.IsLocked) return 2;
+        if (e.IsFull) return 1;
+        return 0; // 可选（含已持有未满）
+    }
+
+    private static int RarityRank(string rarity)
+    {
+        switch (rarity)
+        {
+            case "Legendary": return 0;
+            case "Epic": return 1;
+            case "Rare": return 2;
+            case "Special": return 3;
+            case "Common": return 4;
+            default: return 5;
+        }
+    }
+
     public static string ClassifyRarity(string id)
     {
         if (string.IsNullOrEmpty(id))
@@ -168,5 +219,18 @@ public static class TributeCatalog
             case "Special": return new Color(1.0f, 0.4f, 0.4f);
             default: return Color.white;
         }
+    }
+
+    /// <summary>
+    /// 行颜色只表示稀有度；未解锁时降低透明度，不改色相，避免和状态语义打架。
+    /// </summary>
+    public static Color RowColor(TributeCatalogEntry e)
+    {
+        Color c = RarityColor(e?.Rarity);
+        if (e != null && e.IsLocked)
+            c.a = 0.45f;
+        else if (e != null && e.IsFull)
+            c.a = 0.65f;
+        return c;
     }
 }
