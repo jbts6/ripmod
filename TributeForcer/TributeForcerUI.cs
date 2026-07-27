@@ -5,7 +5,7 @@ using UnityEngine;
 
 public sealed class TributeForcerUI : MonoBehaviour
 {
-    private Rect _windowRect = new Rect(50, 50, 420, 520);
+    private Rect _windowRect = new Rect(50, 50, 460, 540);
     private Vector2 _scrollPos;
     private string _search = "";
     private List<TributeCatalogEntry> _catalog = new List<TributeCatalogEntry>();
@@ -77,7 +77,9 @@ public sealed class TributeForcerUI : MonoBehaviour
         }
 
         GUILayout.Space(4);
-        GUILayout.Label($"当前仓库可用贡品 ({_catalog.Count}) — 已选 {_selected.Count}/{TributeCatalog.MaxForceCount}", _styleLabel);
+
+        int resolved = _catalog.Count(e => !string.IsNullOrEmpty(e.ChineseName));
+        GUILayout.Label($"当前仓库贡品 ({_catalog.Count}) — 已选 {_selected.Count}/{TributeCatalog.MaxForceCount} — 已识别中文名 {resolved}", _styleLabel);
         GUILayout.Space(4);
 
         _search = GUILayout.TextField(_search, GUILayout.Height(24));
@@ -92,9 +94,14 @@ public sealed class TributeForcerUI : MonoBehaviour
 
         string q = _search?.Trim().ToLowerInvariant() ?? "";
         var filtered = _catalog.Where(e =>
-            string.IsNullOrEmpty(q) ||
-            e.Id.ToLowerInvariant().Contains(q) ||
-            e.Rarity.ToLowerInvariant().Contains(q)).ToList();
+        {
+            if (string.IsNullOrEmpty(q))
+                return true;
+            string id = e.Id.ToLowerInvariant();
+            string name = (e.ChineseName ?? "").ToLowerInvariant();
+            string rarity = (e.Rarity ?? "").ToLowerInvariant();
+            return id.Contains(q) || name.Contains(q) || rarity.Contains(q);
+        }).ToList();
 
         _scrollPos = GUILayout.BeginScrollView(_scrollPos, GUILayout.Height(340));
         foreach (var entry in filtered)
@@ -102,7 +109,12 @@ public sealed class TributeForcerUI : MonoBehaviour
             bool isSel = _selected.Contains(entry.Id);
             Color c = TributeCatalog.RarityColor(entry.Rarity);
             GUI.color = c;
-            bool nowSel = GUILayout.Toggle(isSel, $"{entry.Id}  [{entry.Rarity}]", _styleToggle);
+
+            string display = string.IsNullOrEmpty(entry.ChineseName)
+                ? $"{entry.Id}  [{entry.Rarity}]"
+                : $"{entry.ChineseName}  ({entry.Id})  [{entry.Rarity}]";
+
+            bool nowSel = GUILayout.Toggle(isSel, display, _styleToggle);
             GUI.color = Color.white;
 
             if (nowSel && !isSel)
@@ -127,14 +139,19 @@ public sealed class TributeForcerUI : MonoBehaviour
         if (GUILayout.Button("★ 应用到下次刷新 ★", _styleButton, GUILayout.Height(36)))
         {
             TributeForcerRefreshPatch.SetForcedIds(_selected);
-            TributeForcerMod.Logger?.Msg("[TributeForcer] 已设置强制贡品: " + string.Join(", ", _selected));
+            string label = string.Join(", ", _selected.Select(s =>
+            {
+                string n = TributeNameResolver.Resolve(s);
+                return string.IsNullOrEmpty(n) ? s : $"{n}({s})";
+            }));
+            TributeForcerMod.Logger?.Msg("[TributeForcer] 已设置强制贡品: " + label);
             Visible = false;
         }
         GUI.enabled = true;
 
         GUILayout.Space(4);
         GUI.color = Color.yellow;
-        GUILayout.Label("提示: 选中后点击刷新即可刷出。最多 3 个。", _styleBox);
+        GUILayout.Label("提示: 选中后点击刷新即可刷出。最多 3 个。\n中文名在游戏显示贡品后自动抓取。", _styleBox);
         GUI.color = Color.white;
 
         GUI.DragWindow(new Rect(0, 0, 10000, 20));

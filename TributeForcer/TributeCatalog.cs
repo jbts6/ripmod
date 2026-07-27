@@ -10,6 +10,7 @@ using UnityEngine;
 public sealed class TributeCatalogEntry
 {
     public string Id;
+    public string ChineseName;
     public string Rarity;
     public float BaseWeight;
     public string DepotName;
@@ -28,7 +29,7 @@ public static class TributeCatalog
             if (stage == null)
                 return result;
 
-            string currentDepot = GetCurrentDepotName(stage);
+            string currentDepot = GetCurrentDepoName(stage);
 
             var depoNames = EnumerateDepoNames(stage);
             foreach (string name in depoNames)
@@ -44,6 +45,7 @@ public static class TributeCatalog
                     result.Add(new TributeCatalogEntry
                     {
                         Id = pair.Key,
+                        ChineseName = TributeNameResolver.Resolve(pair.Key) ?? "",
                         Rarity = ClassifyRarity(pair.Key),
                         BaseWeight = pair.Value,
                         DepotName = name,
@@ -72,7 +74,7 @@ public static class TributeCatalog
         return result;
     }
 
-    private static string GetCurrentDepotName(NZStage stage)
+    private static string GetCurrentDepoName(NZStage stage)
     {
         try
         {
@@ -94,8 +96,7 @@ public static class TributeCatalog
                 BindingFlags.Instance | BindingFlags.NonPublic);
             if (field != null)
             {
-                var dict = field.GetValue(stage) as
-                    System.Collections.IDictionary;
+                var dict = field.GetValue(stage) as System.Collections.IDictionary;
                 if (dict != null)
                 {
                     foreach (var key in dict.Keys)
